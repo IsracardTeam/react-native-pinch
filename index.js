@@ -1,12 +1,15 @@
 'use strict';
 
 import { NativeModules } from 'react-native';
+
+const { RNPinch } = NativeModules;
+
 var Q = require('q');
 
-var RNPinch = {
+module.exports =  {
     fetch: function (url, obj, callback) {
         var deferred = Q.defer();
-        NativeModules.RNPinch.fetch(url, obj, (err, res) => {
+        RNPinch.fetch(url, obj, (err, res) => {
 
             if (err) {
                 deferred.reject(err);
@@ -30,6 +33,5 @@ var RNPinch = {
         });
         return deferred.promise;
     }
+    
 };
-
-module.exports =  RNPinch;
