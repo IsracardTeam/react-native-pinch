@@ -1,5 +1,6 @@
 package com.localz.pinch.utils;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.CookieManager;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -57,9 +59,15 @@ public class HttpUtil {
         return jsonHeaders;
     }
 
-    private HttpsURLConnection prepareRequestHeaders(HttpsURLConnection connection, JSONObject headers) throws JSONException {
+    private HttpsURLConnection prepareRequestHeaders(HttpsURLConnection connection, JSONObject headers, CookieManager msCookieManager) throws JSONException {
         connection.setRequestProperty("Content-Type", DEFAULT_CONTENT_TYPE);
         connection.setRequestProperty("Accept", DEFAULT_CONTENT_TYPE);
+
+        if (msCookieManager.getCookieStore().getCookies().size() > 0) {
+            // While joining the Cookies, use ',' or ';' as needed. Most of the servers are using ';'
+            connection.setRequestProperty("Cookie",
+                    TextUtils.join(";",  msCookieManager.getCookieStore().getCookies()));
+        }
 
         if (headers != null) {
             Iterator<String> iterator = headers.keys();
@@ -72,7 +80,7 @@ public class HttpUtil {
         return connection;
     }
 
-    private HttpsURLConnection prepareRequest(HttpRequest request)
+    private HttpsURLConnection prepareRequest(HttpRequest request, CookieManager mCookieManager)
             throws IOException, KeyStoreException, CertificateException, KeyManagementException, NoSuchAlgorithmException, JSONException {
         HttpsURLConnection connection;
         URL url = new URL(request.endpoint);
@@ -84,7 +92,7 @@ public class HttpUtil {
         }
         connection.setRequestMethod(method);
 
-        connection = prepareRequestHeaders(connection, request.headers);
+        connection = prepareRequestHeaders(connection, request.headers, mCookieManager);
 
         connection.setRequestProperty("Accept-Charset", "UTF-8");
         connection.setAllowUserInteraction(false);
@@ -115,7 +123,7 @@ public class HttpUtil {
         }
     }
 
-    public HttpResponse sendHttpRequest(HttpRequest request)
+    public HttpResponse sendHttpRequest(HttpRequest request, CookieManager cookieManager)
             throws IOException, KeyStoreException, CertificateException, KeyManagementException, NoSuchAlgorithmException, JSONException {
         InputStream responseStream = null;
         HttpResponse response = new HttpResponse();
@@ -124,7 +132,7 @@ public class HttpUtil {
         String statusText;
 
         try {
-            connection = prepareRequest(request);
+            connection = prepareRequest(request, cookieManager);
 
             connection.connect();
 
