@@ -5,6 +5,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -66,7 +67,12 @@ public class RNPinch extends ReactContextBaseJavaModule {
     public String getName() {
         return "RNPinch";
     }
-
+    
+    @ReactMethod
+    public String getCookies() {
+        return TextUtils.join(";",cookieManager.getCookieStore().getCookies());
+    }
+    
     @ReactMethod
     public void fetch(String endpoint, ReadableMap opts, Callback callback) {
         new FetchTask(opts, callback).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, endpoint);
