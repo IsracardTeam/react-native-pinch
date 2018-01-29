@@ -7,6 +7,7 @@ const { RNPinch } = NativeModules;
 var Q = require('q');
 
 module.exports =  {
+    getCookies : RNPinch.getCookies,
     fetch: function (url, obj, callback) {
         var deferred = Q.defer();
         RNPinch.fetch(url, obj, (err, res) => {
