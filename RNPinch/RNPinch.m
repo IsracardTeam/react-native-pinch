@@ -99,10 +99,9 @@ RCT_REMAP_METHOD(getCookies, findEventsWithResolver:(RCTPromiseResolveBlock)reso
     for (cookie in [cookieJar cookies]) {
         [dictionary setObject:cookie.value forKey:cookie.name];
     }
-        resolve(dictionary);
     
     if ([dictionary count] > 0){
-        
+        resolve(dictionary);
     }
     else{
         NSError *error = nil;
