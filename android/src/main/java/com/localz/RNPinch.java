@@ -9,6 +9,7 @@ import android.text.TextUtils;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -16,6 +17,7 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.UnexpectedNativeTypeException;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeMap;
 import com.localz.pinch.models.HttpRequest;
 import com.localz.pinch.models.HttpResponse;
 import com.localz.pinch.utils.HttpUtil;
@@ -30,6 +32,7 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.List;
 
 public class RNPinch extends ReactContextBaseJavaModule {
 
@@ -67,12 +70,23 @@ public class RNPinch extends ReactContextBaseJavaModule {
     public String getName() {
         return "RNPinch";
     }
-    
+
     @ReactMethod
-    public String getCookies() {
-        return TextUtils.join(";",cookieManager.getCookieStore().getCookies());
+    public void getCookies(final Promise promise) {
+        try {
+            WritableMap map = new WritableNativeMap();
+            List<HttpCookie> cookies = cookieManager.getCookieStore().getCookies();
+            for (HttpCookie cookie : cookies) {
+                map.putString(cookie.getName(), cookie.getValue());
+            }
+
+            promise.resolve(map);
+        }
+        catch (Exception e) {
+            promise.reject(e);
+        }
     }
-    
+
     @ReactMethod
     public void fetch(String endpoint, ReadableMap opts, Callback callback) {
         new FetchTask(opts, callback).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, endpoint);
