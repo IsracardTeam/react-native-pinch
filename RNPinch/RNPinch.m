@@ -89,6 +89,27 @@ RCT_EXPORT_MODULE();
     return self;
 }
 
+RCT_REMAP_METHOD(getCookies, findEventsWithResolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject){
+    
+    NSHTTPCookie *cookie;
+    NSHTTPCookieStorage* cookieJar  =  NSHTTPCookieStorage.sharedHTTPCookieStorage;
+    
+    NSMutableDictionary* dictionary = @{}.mutableCopy;
+
+    for (cookie in [cookieJar cookies]) {
+        [dictionary setObject:cookie.value forKey:cookie.name];
+    }
+        resolve(dictionary);
+    
+    if ([dictionary count] > 0){
+        
+    }
+    else{
+        NSError *error = nil;
+        reject(@"no_cookies", @"There were no cookies", error);
+    }
+}
+
 RCT_EXPORT_METHOD(fetch:(NSString *)url obj:(NSDictionary *)obj callback:(RCTResponseSenderBlock)callback) {
     NSURL *u = [NSURL URLWithString:url];
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:u];
